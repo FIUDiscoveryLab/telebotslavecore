@@ -25,6 +25,9 @@ public abstract class CoreSlaveComponent {
 
 	public static String TAG = makeLogTag("CoreComponent");
 	
+//	Is it a Slave Component. This is set in the constructor
+	private Boolean isSerialComponent 				= true;	
+	
 //  Serial
 	private SerialPort serialPort;
 	protected Boolean serialConnected 		= false;
@@ -42,6 +45,13 @@ public abstract class CoreSlaveComponent {
 	private static CoreDataReaderAdapter listener	= null;
 //	Object instance 								= new TMasterToHands();
 	InstanceHandle_t instance_handle 				= InstanceHandle_t.HANDLE_NIL;
+	
+	/**
+	 * Default Core Slave Component for non-serial components
+	 */
+	public CoreSlaveComponent(){
+		this.isSerialComponent = false;
+	}
 	
 	/**
 	 * Default Constructor Uses Default Values For Serial Connection
@@ -150,8 +160,11 @@ public abstract class CoreSlaveComponent {
 	 */
 	public boolean initiateTransmissionProtocol(String topicName, Class type, CoreDataReaderAdapter listener){
 		setListener(listener);
-		getListener().setSerialPort(this.serialPort);
 		
+		if(isSerialComponent){
+			getListener().setSerialPort(this.serialPort);
+		}
+
 		communicator = new DDSCommunicator();
 		try {
 			communicator.createParticipant();
